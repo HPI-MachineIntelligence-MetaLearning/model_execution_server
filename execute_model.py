@@ -19,25 +19,29 @@ LABEL_NAMES = ('other',
 
 
 def run(image, trained_model, gpu=-1, vis=False):
-    model = SSD300(
-        n_fg_class=len(LABEL_NAMES),
-        pretrained_model=trained_model)
+    try:
+        model = SSD300(
+            n_fg_class=len(LABEL_NAMES),
+            pretrained_model=trained_model)
 
-    if gpu >= 0:
-        chainer.cuda.get_device_from_id(gpu).use()
-        model.to_gpu()
+        if gpu >= 0:
+            chainer.cuda.get_device_from_id(gpu).use()
+            model.to_gpu()
 
-    img = utils.read_image(image, color=True)
-    bboxes, labels, scores = model.predict([img])
+        img = utils.read_image(image, color=True)
+        bboxes, labels, scores = model.predict([img])
 
-    if vis:
-        [vis_bbox(img, bbox, label, score, label_names=LABEL_NAMES)
-         for bbox, label, score in zip(bboxes, labels, scores)]
-        plot.show()
-    bboxes = list(map((lambda x: x.tolist()), bboxes))
-    labels = list(map((lambda x: x.tolist()), labels))
-    scores = list(map((lambda x: x.tolist()), scores))
-    return bboxes, labels, scores
+        if vis:
+            [vis_bbox(img, bbox, label, score, label_names=LABEL_NAMES)
+             for bbox, label, score in zip(bboxes, labels, scores)]
+            plot.show()
+        bboxes = list(map((lambda x: x.tolist()), bboxes))
+        labels = list(map((lambda x: x.tolist()), labels))
+        scores = list(map((lambda x: x.tolist()), scores))
+        return bboxes, labels, scores
+    except:
+        print('Could not load model')
+        return [], [], []
 
 
 if __name__ == '__main__':

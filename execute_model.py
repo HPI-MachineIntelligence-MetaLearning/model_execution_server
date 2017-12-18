@@ -18,18 +18,23 @@ LABEL_NAMES = ('other',
                'none')
 
 
-def run(image, trained_model, gpu=-1, vis=False):
-    try:
-        model = SSD300(
-            n_fg_class=len(LABEL_NAMES),
-            pretrained_model=trained_model)
+class Predictor():
 
-        if gpu >= 0:
-            chainer.cuda.get_device_from_id(gpu).use()
-            model.to_gpu()
+    def __init__(self, trained_model, gpu=-1):
+        try:
+            self.model = SSD300(
+                n_fg_class=len(LABEL_NAMES),
+                pretrained_model=trained_model)
 
+            if gpu >= 0:
+                chainer.cuda.get_device_from_id(gpu).use()
+                self.model.to_gpu()
+        except:
+            print('Could not load model')
+
+    def run(self, image, vis=False):
         img = utils.read_image(image, color=True)
-        bboxes, labels, scores = model.predict([img])
+        bboxes, labels, scores = self.model.predict([img])
 
         if vis:
             [vis_bbox(img, bbox, label, score, label_names=LABEL_NAMES)
@@ -39,9 +44,6 @@ def run(image, trained_model, gpu=-1, vis=False):
         labels = list(map((lambda x: x.tolist()), labels))
         scores = list(map((lambda x: x.tolist()), scores))
         return bboxes, labels, scores
-    except:
-        print('Could not load model')
-        return [], [], []
 
 
 if __name__ == '__main__':
@@ -53,4 +55,4 @@ if __name__ == '__main__':
     parser.set_defaults(vis=False)
     parser.add_argument('image')
     args = parser.parse_args()
-    run(args.image, args.model, args.gpu, args.vis)
+    Predictor(args.model, args.gpu).run(args.image, args.vis)

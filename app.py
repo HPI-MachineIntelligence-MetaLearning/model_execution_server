@@ -1,4 +1,4 @@
-import execute_model
+from execute_model import Predictor
 import yaml
 from flask import Flask, request
 from flask_cors import CORS
@@ -13,15 +13,17 @@ def load_config(path):
         return yaml.load(f)
 
 cfg = load_config('config.yml')
+predictor = Predictor(cfg['model_path'])
 
 
 @app.route("/", methods=['POST'])
 def handle_img():
-    f = request.files['image']
-    bboxes, labels, scores = execute_model.run(f, cfg['model_path'])
-    result = {'bboxes': bboxes,
-              'labels': labels,
-              'scores': scores}
+    result = []
+    for f in request.files.getlist('image'):
+        bboxes, labels, scores = predictor.run(f)
+        result.append({'bboxes': bboxes,
+                       'labels': labels,
+                       'scores': scores})
     return json.dumps(result)
 
 if __name__ == '__main__':

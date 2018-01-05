@@ -28,13 +28,21 @@ Then, store the model in a folder and adjust the `config.yml` to state the corre
 
 ## Interface
 
-Currently, only one route is implemented:
+The server accepts requests on the root route with two methods:
 
 Request method: POST
 
-Parameters: 'image', a _File_ containing the image to be analyzed
+Parameters: 'image', one or multiple _Files_ containing the images to be analyzed
 
-Response: JSON, containing the bounding boxes, labels and scores (currently super nested, but maybe this is necessary, further investigation needed).
+Response: 'Prediction started.' if everything went ok.
+
+---
+
+Request method: POST
+
+Parameters: none
+
+Response: JSON, containing the bounding boxes, labels and scores.
 For example:
 ```json
 {"bboxes": [[[147.03463745117188, 56.062950134277344, 332.25201416015625, 246.7890167236328]]],

@@ -38,14 +38,16 @@ Response: 'Prediction started.' if everything went ok.
 
 ---
 
-Request method: POST
+Request method: GET
 
 Parameters: none
 
-Response: JSON, containing the bounding boxes, labels and scores.
+Response: In the case of success: JSON, containing the bounding boxes, labels and scores.
 For example:
 ```json
 {"bboxes": [[[147.03463745117188, 56.062950134277344, 332.25201416015625, 246.7890167236328]]],
 "scores": [[0.734071671962738]],
 "labels": [[2]]}
 ```
+
+Else: 'No items in queue.' if either not all images have finished processing or all images have been processed and requested thereafter.

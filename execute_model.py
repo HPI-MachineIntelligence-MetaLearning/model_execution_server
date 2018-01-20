@@ -33,17 +33,20 @@ class Predictor():
             print('Could not load model')
 
     def run(self, image, vis=False):
-        img = utils.read_image(image, color=True)
-        bboxes, labels, scores = self.model.predict([img])
+        if hasattr(self, 'model'):
+            img = utils.read_image(image, color=True)
+            bboxes, labels, scores = self.model.predict([img])
 
-        if vis:
-            [vis_bbox(img, bbox, label, score, label_names=LABEL_NAMES)
-             for bbox, label, score in zip(bboxes, labels, scores)]
-            plot.show()
-        bboxes = list(map((lambda x: x.tolist()), bboxes))
-        labels = list(map((lambda x: x.tolist()), labels))
-        scores = list(map((lambda x: x.tolist()), scores))
-        return bboxes, labels, scores
+            if vis:
+                [vis_bbox(img, bbox, label, score, label_names=LABEL_NAMES)
+                 for bbox, label, score in zip(bboxes, labels, scores)]
+                plot.show()
+            bboxes = list(map((lambda x: x.tolist()), bboxes))
+            labels = list(map((lambda x: x.tolist()), labels))
+            scores = list(map((lambda x: x.tolist()), scores))
+            return bboxes, labels, scores
+        print('Model was not correctly loaded, can\'t predict anything!')
+        return [], [], []
 
 
 if __name__ == '__main__':

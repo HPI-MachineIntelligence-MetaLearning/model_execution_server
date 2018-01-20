@@ -47,6 +47,32 @@ def start_processing():
     return 'Prediction started.'
 
 
+@app.route("/set_output", methods=['POST'])
+def set_output_folder():
+    global cfg
+    print(request.form)
+    path = request.form['path']
+    cfg['default_output_folder'] = path
+    return 'Result output folder set to {}.'.format(path)
+
+
+@app.route("/save_output", methods=['POST'])
+def save_output():
+    global cfg
+    print(request.form)
+    annotation = request.form['annotation']
+    name = request.form['name']
+    filepath = os.path.join(cfg['default_output_folder'], name)
+    try:
+        if not os.path.exists(cfg['default_output_folder']):
+            os.makedirs(cfg['default_output_folder'])
+        with open(filepath, 'w') as file:
+            file.write(annotation)
+    except PermissionError:
+        return 'Insufficient permission to write in that folder.', 500
+    return 'Annotation written to {}.'.format(filepath)
+
+
 @app.route("/", methods=['GET'])
 def get_img():
     global processed_imgs

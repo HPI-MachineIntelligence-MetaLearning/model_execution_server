@@ -50,8 +50,9 @@ def start_processing():
 @app.route("/set_output", methods=['POST'])
 def set_output_folder():
     global cfg
-    print(request.form)
-    path = request.form['path']
+    data = request.get_json()
+    print(data)
+    path = data['path']
     cfg['default_output_folder'] = path
     return 'Result output folder set to {}.'.format(path)
 
@@ -59,9 +60,10 @@ def set_output_folder():
 @app.route("/save_output", methods=['POST'])
 def save_output():
     global cfg
-    print(request.form)
-    annotation = request.form['annotation']
-    name = request.form['name']
+    data = request.get_json()
+    print(data)
+    annotation = data['annotation']
+    name = data['name']
     filepath = os.path.join(cfg['default_output_folder'], name)
     try:
         if not os.path.exists(cfg['default_output_folder']):

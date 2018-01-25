@@ -12,6 +12,8 @@ import os
 app = Flask(__name__)
 CORS(app)
 processed_imgs = queue.Queue()
+img_processor = None
+is_processing = True
 
 
 def load_config(path):
@@ -24,15 +26,17 @@ predictor = Predictor(cfg['model_path'])
 
 def predict_images(imgs, tempdir):
     for img in imgs:
-        bboxes, labels, scores = predictor.run(img)
-        processed_imgs.put({'bboxes': bboxes,
-                            'labels': labels,
-                            'scores': scores})
+        if is_processing:
+            bboxes, labels, scores = predictor.run(img)
+            processed_imgs.put({'bboxes': bboxes,
+                                'labels': labels,
+                                'scores': scores})
     del tempdir
 
 
 @app.route("/", methods=['POST'])
 def start_processing():
+    global img_processor
     folder = tempfile.TemporaryDirectory()
     files = request.files.getlist('image')
     filepaths = []
@@ -41,10 +45,21 @@ def start_processing():
         filepath = os.path.join(folder.name, filename)
         file.save(filepath)
         filepaths.append(filepath)
-    t = threading.Thread(target=predict_images,
-                         args=(filepaths, folder))
-    t.start()
+    img_processor = threading.Thread(target=predict_images,
+                                     args=(filepaths, folder))
+    img_processor.start()
     return 'Prediction started.'
+
+
+@app.route("/reset", methods=['POST'])
+def reset_queue():
+    global is_processing, img_processor, processed_imgs
+    is_processing = False
+    if img_processor:
+        img_processor.join()
+    processed_imgs.queue.clear()
+    is_processing = True
+    return 'Queue cleared.'
 
 
 @app.route("/set_output", methods=['POST'])

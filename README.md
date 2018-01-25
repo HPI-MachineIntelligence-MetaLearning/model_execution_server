@@ -80,3 +80,11 @@ Response: 'Annotation written to <path>', if everything went ok.
 
 Else: 'Insufficient permission', if the folder specified via the `/set_route` request is not accessible for this application.
 
+---
+
+Route: /reset
+
+Request method: POST
+
+Response: 'Queue cleared.', if everything went ok. (The Queue was emptied and all running processes terminated.)
+

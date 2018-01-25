@@ -11,3 +11,4 @@ dependencies:
   - chainercv==0.7.0.0
   - pyyaml==3.12
   - matplotlib==2.1.0
+  - dicttoxml==1.7.4

@@ -8,6 +8,7 @@ import threading
 import queue
 import tempfile
 import os
+from dicttoxml import dicttoxml
 
 app = Flask(__name__)
 CORS(app)
@@ -78,13 +79,16 @@ def save_output():
     data = request.get_json()
     print(data)
     annotation = data['annotation']
-    name = data['name']
+    xml = dicttoxml(annotation, attr_type=False, custom_root='annotation',
+                    item_func=lambda _: 'object').decode('utf-8')
+    print(xml)
+    name = data['name'] + '.xml'
     filepath = os.path.join(cfg['default_output_folder'], name)
     try:
         if not os.path.exists(cfg['default_output_folder']):
             os.makedirs(cfg['default_output_folder'])
         with open(filepath, 'w') as file:
-            file.write(annotation)
+            file.write(xml)
     except PermissionError:
         return 'Insufficient permission to write in that folder.', 500
     return 'Annotation written to {}.'.format(filepath)
